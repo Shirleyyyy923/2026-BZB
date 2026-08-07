@@ -77,10 +77,12 @@ const ticketName = document.querySelector("#ticketName");
 const ticketPhone = document.querySelector("#ticketPhone");
 const whatsAppLink = document.querySelector("#whatsAppLink");
 const qrMark = document.querySelector("#qrMark");
+const bookingList = document.querySelector("#bookingList");
+const bookingListCount = document.querySelector("#bookingListCount");
 const courseConfig = window.courseConfig || {
   label: "F1",
   bookingPrefix: "F1",
-  storageKey: "f1LockedSeats-v2",
+  storageKey: "f1LockedSeats-v4",
   roomKeys: ["B5", "B6"]
 };
 
@@ -89,8 +91,20 @@ let selected = null;
 let timer = 9 * 60 + 59;
 let fallbackLockedSeats = {};
 const storageKey = courseConfig.storageKey;
+const legacyStorageKeys = [
+  storageKey,
+  `${courseConfig.bookingPrefix.toLowerCase()}LockedSeats-v4`,
+  `${courseConfig.bookingPrefix.toLowerCase()}LockedSeats-v3`,
+  `${courseConfig.bookingPrefix.toLowerCase()}LockedSeats-v2`,
+  `${courseConfig.bookingPrefix.toLowerCase()}LockedSeats-v1`,
+  "form1LockedSeats-v1",
+  "bzbLockedSeats-v4",
+  "bzbLockedSeats-v3",
+  "bzbLockedSeats-v2",
+  "bzbLockedSeats"
+].filter((key, index, list) => key && list.indexOf(key) === index);
 
-if (new URLSearchParams(window.location.search).get("reset") === "1") {
+if (new URLSearchParams(window.location.search).get("clear") === "CONFIRM") {
   try {
     localStorage.removeItem("bzbLockedSeats");
     localStorage.removeItem("bzbLockedSeats-v2");
@@ -99,6 +113,10 @@ if (new URLSearchParams(window.location.search).get("reset") === "1") {
     localStorage.removeItem("form1LockedSeats-v1");
     localStorage.removeItem("f1LockedSeats-v1");
     localStorage.removeItem("f5LockedSeats-v1");
+    localStorage.removeItem("f1LockedSeats-v2");
+    localStorage.removeItem("f5LockedSeats-v2");
+    localStorage.removeItem("f1LockedSeats-v3");
+    localStorage.removeItem("f5LockedSeats-v3");
     localStorage.removeItem(storageKey);
   } catch {
     fallbackLockedSeats = {};
@@ -135,7 +153,7 @@ function visibleRoomKeys() {
 function saveBooking(booking) {
   const saved = readLockedSeats();
   saved[booking.room] = Array.from(new Set([...(saved[booking.room] || []), booking.seat]));
-  saved.bookings = [booking, ...(saved.bookings || [])].slice(0, 20);
+  saved.bookings = dedupeBookings([booking, ...(saved.bookings || [])]).slice(0, 300);
   fallbackLockedSeats = saved;
   try {
     localStorage.setItem(storageKey, JSON.stringify(saved));
@@ -146,10 +164,51 @@ function saveBooking(booking) {
 
 function readLockedSeats() {
   try {
-    return JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const merged = legacyStorageKeys.reduce((acc, key) => mergeSeatRecords(acc, JSON.parse(localStorage.getItem(key) || "{}")), {});
+    const restored = mergeSeatRecords(merged, { bookings: courseConfig.presetBookings || [] });
+    fallbackLockedSeats = restored;
+    localStorage.setItem(storageKey, JSON.stringify(restored));
+    return restored;
   } catch {
     return fallbackLockedSeats;
   }
+}
+
+function mergeSeatRecords(base, incoming) {
+  const merged = { ...base };
+  visibleRoomKeys().forEach((roomKey) => {
+    merged[roomKey] = Array.from(new Set([...(merged[roomKey] || []), ...((incoming && incoming[roomKey]) || [])]));
+  });
+  const incomingBookings = Array.isArray(incoming?.bookings) ? incoming.bookings : [];
+  merged.bookings = dedupeBookings([...(merged.bookings || []), ...incomingBookings]).slice(0, 300);
+  merged.bookings.forEach((booking) => {
+    if (!booking?.room || !booking?.seat) return;
+    merged[booking.room] = Array.from(new Set([...(merged[booking.room] || []), booking.seat]));
+  });
+  return merged;
+}
+
+function dedupeBookings(bookings) {
+  const merged = [];
+  const seen = new Map();
+
+  bookings.forEach((booking) => {
+    if (!booking) return false;
+    const key = `${booking.course || courseConfig.label}-${booking.room}-${booking.seat}`;
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      Object.keys(booking).forEach((field) => {
+        if (!existing[field] && booking[field]) existing[field] = booking[field];
+      });
+      return;
+    }
+
+    const copy = { ...booking };
+    seen.set(key, copy);
+    merged.push(copy);
+  });
+
+  return merged;
 }
 
 function renderTabs() {
@@ -268,6 +327,7 @@ function lockSeat() {
   selected = null;
   render();
   renderTicker();
+  renderBookingList();
 }
 
 function createBooking(roomKey, seat) {
@@ -344,6 +404,34 @@ function renderTicker() {
   tickerTrack.innerHTML = [...items, ...items].map((item) => `<span>${item}</span>`).join("");
 }
 
+function renderBookingList() {
+  if (!bookingList || !bookingListCount) return;
+  const bookings = readLockedSeats().bookings || [];
+  bookingListCount.textContent = `${bookings.length} records`;
+
+  if (!bookings.length) {
+    bookingList.innerHTML = `<div class="booking-empty">还没有真实预定记录。</div>`;
+    return;
+  }
+
+  bookingList.innerHTML = bookings.map((booking) => `
+    <article class="booking-row">
+      <div>
+        <span>${booking.course || courseConfig.label} · ${booking.room}-${booking.seat}</span>
+        <strong>${booking.name || "学生"}</strong>
+      </div>
+      <div>
+        <span>WhatsApp</span>
+        <strong>${booking.phone || "-"}</strong>
+      </div>
+      <div>
+        <span>Booking ID</span>
+        <strong>${booking.bookingId || "-"}</strong>
+      </div>
+    </article>
+  `).join("");
+}
+
 function updateCountdown() {
   const min = String(Math.floor(timer / 60)).padStart(2, "0");
   const sec = String(timer % 60).padStart(2, "0");
@@ -370,6 +458,7 @@ lockButton.addEventListener("click", lockSeat);
   input.addEventListener("input", () => renderStats(activeRoom));
 });
 renderTicker();
+renderBookingList();
 render();
 updateCountdown();
 setInterval(updateCountdown, 1000);

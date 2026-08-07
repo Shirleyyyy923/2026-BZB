@@ -135,6 +135,17 @@
           </div>
         </div>
       </section>
+
+      <section class="booking-list-panel" aria-label="预定名单">
+        <div class="booking-list-head">
+          <div>
+            <p class="eyebrow">Booking List</p>
+            <h2>预定名单</h2>
+          </div>
+          <strong id="bookingListCount">0 records</strong>
+        </div>
+        <div class="booking-list" id="bookingList"></div>
+      </section>
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -142,10 +153,10 @@
       window.courseConfig = {
         label: "F1",
         bookingPrefix: "F1",
-        storageKey: "f1LockedSeats-v2",
+        storageKey: "f1LockedSeats-v4",
         roomKeys: ["B5", "B6"]
       };
     </script>
-    <script src="app.js?v=split-3"></script>
+    <script src="app.js?v=split-9"></script>
   </body>
 </html>

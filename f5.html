@@ -23,7 +23,7 @@
         <div class="hero-copy">
           <div class="drop-label">学生到 counter 报名，老师现场帮他锁位</div>
           <h2>先到 counter，先选好位。</h2>
-          <p>Counter 老师从 B5 / B6 选择座位，填写学生资料，生成 F5 电子票后 WhatsApp 发给学生。</p>
+          <p>Counter 老师从 B1 / B3 / B5 / B6 选择座位，填写学生资料，生成 F5 电子票后 WhatsApp 发给学生。</p>
         </div>
         <div class="rush-card" aria-label="倒数计时">
           <span>本轮 counter 保留倒数</span>
@@ -135,6 +135,17 @@
           </div>
         </div>
       </section>
+
+      <section class="booking-list-panel" aria-label="预定名单">
+        <div class="booking-list-head">
+          <div>
+            <p class="eyebrow">Booking List</p>
+            <h2>预定名单</h2>
+          </div>
+          <strong id="bookingListCount">0 records</strong>
+        </div>
+        <div class="booking-list" id="bookingList"></div>
+      </section>
     </main>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -142,10 +153,37 @@
       window.courseConfig = {
         label: "F5",
         bookingPrefix: "F5",
-        storageKey: "f5LockedSeats-v2",
-        roomKeys: ["B1", "B3", "B5", "B6"]
+        storageKey: "f5LockedSeats-v4",
+        roomKeys: ["B1", "B3", "B5", "B6"],
+        presetBookings: [
+          { bookingId: "F5-B5-J3-2NKLG", course: "F5", room: "B5", seat: "J3", name: "GRACE TAN", phone: "01110341005" },
+          { bookingId: "F5-B5-I3-2O5JR", course: "F5", room: "B5", seat: "I3", name: "YUN HAN", phone: "0195553327" },
+          { bookingId: "F5-B6-I4-2P90W", course: "F5", room: "B6", seat: "I4", name: "WEI KANG", phone: "01172257208" },
+          { bookingId: "F5-B5-G3-2RIJV", course: "F5", room: "B5", seat: "G3", name: "LOKE JING BEI", phone: "0179581691" },
+          { bookingId: "F5-B5-F3-2RIJV", course: "F5", room: "B5", seat: "F3", name: "CHIA SIN YEE", phone: "0179581691" },
+          { bookingId: "F5-B5-E3-2UHEL", course: "F5", room: "B5", seat: "E3", name: "SENG JIA LIN", phone: "0179581691" },
+          { bookingId: "F5-B5-H3-2VPKG", course: "F5", room: "B5", seat: "H3", name: "JIA XI", phone: "0192870818" },
+          { bookingId: "F5-B5-C3-2X782", course: "F5", room: "B5", seat: "C3", name: "YI MING", phone: "01127661305" },
+          { bookingId: "F5-B6-F4-2YZJU", course: "F5", room: "B6", seat: "F4", name: "NICOLE", phone: "0187807668" },
+          { bookingId: "F5-B5-C2-30D0F", course: "F5", room: "B5", seat: "C2", name: "YU PENG", phone: "0172202637" },
+          { bookingId: "F5-B5-D2-30WEB", course: "F5", room: "B5", seat: "D2", name: "WEN RUI", phone: "0109150878" },
+          { bookingId: "F5-B6-H3-32DEB", course: "F5", room: "B6", seat: "H3", name: "JING XUAN", phone: "0182580015" },
+          { bookingId: "F5-B6-E4-335EO", course: "F5", room: "B6", seat: "E4", name: "QIAN HUI", phone: "0197109813" },
+          { bookingId: "F5-B6-D3-349SY", course: "F5", room: "B6", seat: "D3", name: "LAM WAI CHENG", phone: "0177540229" },
+          { bookingId: "F5-B6-E3-35HDK", course: "F5", room: "B6", seat: "E3", name: "TEE REN HONG", phone: "0105593317" },
+          { bookingId: "F5-B6-F3-365E4", course: "F5", room: "B6", seat: "F3", name: "WONG ZI YANG", phone: "01123283719" },
+          { bookingId: "F5-B6-H2-37AW2", course: "F5", room: "B6", seat: "H2", name: "WONG ZI HAN", phone: "01120942968" },
+          { bookingId: "F5-B6-B3-386Q2", course: "F5", room: "B6", seat: "B3", name: "EN YI", phone: "0143609799" },
+          { bookingId: "F5-B6-C3-38SR2", course: "F5", room: "B6", seat: "C3", name: "JIN YIN", phone: "01155853139" },
+          { bookingId: "F5-B5-E2-39Q8P", course: "F5", room: "B5", seat: "E2", name: "WEI HUNG", phone: "0183796881" },
+          { bookingId: "F5-B5-F2-3A3QP", course: "F5", room: "B5", seat: "F2", name: "JIA HONG", phone: "0183796881" },
+          { bookingId: "F5-B5-B2-3BEDG", course: "F5", room: "B5", seat: "B2", name: "CHONG YI", phone: "01161361028" },
+          { bookingId: "F5-B5-A2-3BV5O", course: "F5", room: "B5", seat: "A2", name: "WEN JIE", phone: "01161361028" },
+          { bookingId: "F5-B5-E4-3DSWE", course: "F5", room: "B5", seat: "E4", name: "DAVID", phone: "0172473034" },
+          { bookingId: "F5-B5-H2-3EG92", course: "F5", room: "B5", seat: "H2", name: "DANIEL", phone: "0172473034" }
+        ]
       };
     </script>
-    <script src="app.js?v=split-3"></script>
+    <script src="app.js?v=split-9"></script>
   </body>
 </html>

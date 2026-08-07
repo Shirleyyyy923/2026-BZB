@@ -584,6 +584,74 @@ h1 {
   box-shadow: var(--shadow);
 }
 
+.booking-list-panel {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow);
+}
+
+.booking-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.booking-list-head h2 {
+  margin-top: 4px;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.booking-list-head strong {
+  color: var(--mint);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.booking-list {
+  display: grid;
+  gap: 10px;
+}
+
+.booking-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1.25fr;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 13px;
+}
+
+.booking-row span,
+.booking-empty {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.booking-row strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.booking-empty {
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 16px;
+}
+
 .ticket-panel[hidden] {
   display: none;
 }
@@ -793,6 +861,11 @@ h1 {
   }
 
   .ticket-card {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-list-head,
+  .booking-row {
     grid-template-columns: 1fr;
   }
 
